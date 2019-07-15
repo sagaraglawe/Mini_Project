@@ -46,7 +46,7 @@
         <entry file="file://$PROJECT_DIR$/vendor/temp.go">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="15">
-              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+              <caret line="1" selection-start-line="1" selection-end-line="1" />
             </state>
           </provider>
         </entry>
@@ -157,11 +157,6 @@
               <item name="miniProject" type="b2602c69:ProjectViewProjectNode" />
               <item name="miniProject" type="462c0819:PsiDirectoryNode" />
               <item name="migrations" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="miniProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="miniProject" type="462c0819:PsiDirectoryNode" />
-              <item name="vendor" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -425,9 +420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="29" column="1" lean-forward="true" selection-start-line="29" selection-start-column="1" selection-end-line="29" selection-end-column="1" />
-          <folding>
-            <marker date="1563177540943" expanded="true" signature="1516:2932" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -490,7 +482,7 @@
     <entry file="file://$PROJECT_DIR$/vendor/temp.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
