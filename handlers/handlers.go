@@ -78,10 +78,10 @@ func UserShow(c *gin.Context) {
 			}
 
 			for k, _ := range pp {
-				if k == "username" {
+				if k == "phone_no" {
 					pp[k] = "********"
 				}
-				if k == "phone_no" {
+				if k == "password" {
 					pp[k] = "**********"
 				}
 			}
