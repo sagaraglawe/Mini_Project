@@ -7,7 +7,9 @@ import (
 	"github.com/sagaraglawe/miniProject/inits"
 	"github.com/sagaraglawe/miniProject/migrations"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"sync"
 )
 
 func Admindata(c *gin.Context){
@@ -42,10 +44,17 @@ func AdminShow(c *gin.Context){
 	tt:=[]migrations.Product{}
 	inits.Db.Where("username=?",user).Find(&tt)
 	zz:=[] json.RawMessage{}
+	var wg sync.WaitGroup
 	for i:=0;i<len(tt);i++{
 		//zz.append()
-		zz=append(zz,tt[i].Declare)
+		//zz=append(zz,tt[i].Declare)
+		wg.Add(1)
+		go func (message []byte){
+			zz=append(zz,message)
+			wg.Done()
+		}(tt[i].Declare)
 	}
+	wg.Wait()
 	c.JSON(http.StatusOK,zz)
 	return
 
@@ -59,17 +68,21 @@ func UserShow(c *gin.Context) {
 	var zz [] json.RawMessage
 
 	for i := 0; i < len(tt); i++ {
-		var pp map[string]interface{}
-		json.Unmarshal(tt[i].Declare, &pp)
 
-		for k, _ := range pp {
-			if k == "username" {
-				pp[k] = "********"
-			}
-			if k== "phone_no"{
-				pp[k] = "**********"
-			}
+		var pp map[string]interface{}
+		err:=json.Unmarshal(tt[i].Declare, &pp)
+		if err!=nil{
+			log.Panic(err)
 		}
+
+			for k, _ := range pp {
+				if k == "username" {
+					pp[k] = "********"
+				}
+				if k == "phone_no" {
+					pp[k] = "**********"
+				}
+			}
 
 		tpt, _ := json.Marshal(pp)
 
