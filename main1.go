@@ -143,6 +143,7 @@ func main() {
 	r.POST("/admin/useid",showdata)
 	r.POST("admin/show",adminShow)
 	r.POST("user/show",userShow)
+	r.POST("/store",storedata)
 	r.Run(":8080")
 
 
@@ -221,6 +222,57 @@ func userShow(c *gin.Context){
 }
 
 
+
+func storedata(c *gin.Context){
+	path:=c.Query("path")
+
+	//fmt.Println(path)
+
+	var prod []Product
+
+	//reading the Json file into the file
+	file, _ := ioutil.ReadFile(path)
+
+	//converting the Json file into the slice of bytes
+	err:=json.Unmarshal([]byte(file),&prod)
+
+	//converting the entire fields to set into the Declare column
+	var temp []Tproduct
+	err=json.Unmarshal([]byte(file),&temp)
+
+
+
+	//some modifications
+
+	var pp []map[string]interface{}
+
+	err=json.Unmarshal([]byte(file),&pp)
+
+	//if error happens then call panic
+	if err!=nil{
+		fmt.Println(err)
+	}
+
+	//for k,v:=range pp{
+	//	fmt.Println(k,v)
+	//}
+
+	//migration to create the table in the Database
+	db.AutoMigrate(&Product{})
+
+	//filling the database table
+	for i:=0;i<len(pp);i++{
+		//this is getting the entire field and setting that to the declare field
+		//, _ := json.Marshal(temp[i])
+
+		byte,_:=json.Marshal(pp[i])
+
+		//setting the prod[i] declare field
+		prod[i].Declare=byte
+		//now sending the entry to the database
+		db.Create(prod[i])
+	}
+}
 
 //Q.What mean by Json.rawmessagae?
 //Q.Difference between json.Marshal and marshalJSON
