@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sagaraglawe/miniProject/handlers"
 	"github.com/sagaraglawe/miniProject/inits"
 	"github.com/sagaraglawe/miniProject/migrations"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"io/ioutil"
-	"log"
 )
 
 func main() {
@@ -34,34 +33,44 @@ file, _ := ioutil.ReadFile("JsonFile/sample.json")
 //converting the Json file into the slice of bytes
 err:=json.Unmarshal([]byte(file),&prod)
 
-//converting the entire fields to set into the Declare column
-var temp []migrations.Tproduct
-err=json.Unmarshal([]byte(file),&temp)
 
-//if error happens then call panic
+var pp []map[string]interface{}
+
+err=json.Unmarshal([]byte(file),&pp)
 if err!=nil{
-log.Panic(err)
+	fmt.Println(err)
 }
 
 
+
+//converting the entire fields to set into the Declare column
+//var temp []migrations.Tproduct
+//err=json.Unmarshal([]byte(file),&temp)
+
+//if error happens then call panic
+//if err!=nil{
+//log.Panic(err)
+//}
+
+
 //migration to create the table in the Database
-//db.AutoMigrate(&Product{})
+//inits.Db.AutoMigrate(&migrations.Product{})
 
 //filling the database table
-for i:=0;i<len(temp);i++{
+for i:=0;i<len(pp);i++{
 //this is getting the entire field and setting that to the declare field
-byte2, _ := json.Marshal(temp[i])
+byte2, _ := json.Marshal(pp[i])
 //setting the prod[i] declare field
 prod[i].Declare=byte2
 //now sending the entry to the database
-//db.Create(prod[i])
+//inits.Db.Create(prod[i])
 }
 
 //getting the data
 
-user:=migrations.Product{}
-inits.Db.Where("username=?","Rishabh").First(&user)
-fmt.Println(string(user.Declare))
+//user:=migrations.Product{}
+//inits.Db.Where("username=?","Rishabh").First(&user)
+//fmt.Println(string(user.Declare))
 
 //creating the route general
 r:=gin.Default()

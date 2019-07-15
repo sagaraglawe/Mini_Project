@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"github.com/jinzhu/gorm"
 	"net/http"
+
+	//"net/http"
 	"log"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -25,7 +27,7 @@ func init(){
 	var err error
 	db,err =gorm.Open("mysql", "root:Sagaraglawe@26@tcp(127.0.0.1:3306)/books?charset=utf8&parseTime=True")
 	if err!=nil{
-		fmt.Println(err)
+		log.Panic(err)
 	}
 	log.Println("you are good")
 }
@@ -60,6 +62,11 @@ type Tproduct struct {
 	NumInstallments int    `json:"num_installments"`
 }
 
+type Obfuscate struct{
+	PhoneNo string
+	Password string
+
+}
 
 
 
@@ -91,40 +98,43 @@ func main() {
 	err=json.Unmarshal([]byte(file),&temp)
 
 
-	//some operations
 
-	var ttmp map[string]interface{}
-	er1:=json.Unmarshal([]byte(file),&ttmp)
+	//some modifications
 
-	if er1!=nil{
-		fmt.Println(er1)
-	}
+	var pp []map[string]interface{}
 
+	err=json.Unmarshal([]byte(file),&pp)
 
 	//if error happens then call panic
 	if err!=nil{
-		log.Panic(err)
+		fmt.Println(err)
 	}
 
+	//for k,v:=range pp{
+	//	fmt.Println(k,v)
+	//}
 
 	//migration to create the table in the Database
-	db.AutoMigrate(&Product{})
+	//db.AutoMigrate(&Product{})
 
 	//filling the database table
-	for i:=0;i<len(temp);i++{
+	for i:=0;i<len(pp);i++{
 		//this is getting the entire field and setting that to the declare field
-		byte2, _ := json.Marshal(temp[i])
+		//, _ := json.Marshal(temp[i])
+
+		byte,_:=json.Marshal(pp[i])
+
 		//setting the prod[i] declare field
-		prod[i].Declare=byte2
+		prod[i].Declare=byte
 		//now sending the entry to the database
-		db.Create(prod[i])
+		//db.Create(prod[i])
 	}
 
 	//getting the data
 
-	user:=Product{}
-	db.Where("username=?","Rishabh").First(&user)
-	fmt.Println(string(user.Declare))
+	//user:=Product{}
+	//db.Where("username=?","Rishabh").First(&user)
+	//fmt.Println(string(user.Declare))
 
 	//creating the route general
 	r:=gin.Default()
@@ -189,16 +199,21 @@ func userShow(c *gin.Context){
 	tt:=[]Product{}
 	db.Where("username=?",user).Find(&tt)
 
-	//fmt.Printf("%T",tt[0].Declare)
-
-	var zz [] Tproduct
+	var zz [] json.RawMessage
 
 	for i:=0;i<len(tt);i++{
-		pp:=Tproduct{}
+	var pp map[string]interface{}
 		json.Unmarshal(tt[i].Declare,&pp)
-		pp.PhoneNo=pp.PhoneNo[:2] + "******" + pp.PhoneNo[8:]
-		pp.Password="********"
-		zz=append(zz,pp)
+
+		for k,_:=range pp{
+			if k=="username"{
+				pp[k]="********"
+			}
+		}
+
+		tpt,_:=json.Marshal(pp)
+
+		zz=append(zz,tpt)
 	}
 
 	c.JSON(http.StatusOK,zz)

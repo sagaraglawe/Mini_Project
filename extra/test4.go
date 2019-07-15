@@ -1,4 +1,4 @@
-package extra
+package main
 
 import (
 	"encoding/json"
@@ -96,7 +96,7 @@ func main() {
 
 
 	//migration to create the table in the Database
-	//db.AutoMigrate(&Product{})
+	db.AutoMigrate(&Product{})
 
 //filling the database table
 	for i:=0;i<len(temp);i++{
@@ -105,7 +105,7 @@ func main() {
 	//setting the prod[i] declare field
 		prod[i].Declare=byte2
 	//now sending the entry to the database
-		//db.Create(prod[i])
+		db.Create(prod[i])
 	}
 
 //getting the data

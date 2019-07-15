@@ -50,24 +50,55 @@ func AdminShow(c *gin.Context){
 
 }
 
+func UserShow(c *gin.Context) {
+	user := c.Query("name");
+	tt := []migrations.Product{}
+	inits.Db.Where("username=?", user).Find(&tt)
 
-func UserShow(c *gin.Context){
-	user:=c.Query("name");
-	tt:=[]migrations.Product{}
-	inits.Db.Where("username=?",user).Find(&tt)
+	var zz [] json.RawMessage
 
-	//fmt.Printf("%T",tt[0].Declare)
+	for i := 0; i < len(tt); i++ {
+		var pp map[string]interface{}
+		json.Unmarshal(tt[i].Declare, &pp)
 
-	var zz [] migrations.Tproduct
+		for k, _ := range pp {
+			if k == "username" {
+				pp[k] = "********"
+			}
+			if k== "phone_no"{
+				pp[k] = "**********"
+			}
+		}
 
-	for i:=0;i<len(tt);i++{
-		pp:=migrations.Tproduct{}
-		json.Unmarshal(tt[i].Declare,&pp)
-		pp.PhoneNo=pp.PhoneNo[:2] + "******" + pp.PhoneNo[8:]
-		pp.Password="********"
-		zz=append(zz,pp)
+		tpt, _ := json.Marshal(pp)
+
+		zz = append(zz, tpt)
 	}
 
-	c.JSON(http.StatusOK,zz)
+	c.JSON(http.StatusOK, zz)
 	return
 }
+
+
+
+//
+//func UserShow(c *gin.Context){
+//	user:=c.Query("name");
+//	tt:=[]migrations.Product{}
+//	inits.Db.Where("username=?",user).Find(&tt)
+//
+//	//fmt.Printf("%T",tt[0].Declare)
+//
+//	var zz [] migrations.Tproduct
+//
+//	for i:=0;i<len(tt);i++{
+//		pp:=migrations.Tproduct{}
+//		json.Unmarshal(tt[i].Declare,&pp)
+//		pp.PhoneNo=pp.PhoneNo[:2] + "******" + pp.PhoneNo[8:]
+//		pp.Password="********"
+//		zz=append(zz,pp)
+//	}
+//
+//	c.JSON(http.StatusOK,zz)
+//	return
+//}
