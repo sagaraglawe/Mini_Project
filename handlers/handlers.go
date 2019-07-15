@@ -66,14 +66,16 @@ func UserShow(c *gin.Context) {
 	inits.Db.Where("username=?", user).Find(&tt)
 
 	var zz [] json.RawMessage
-
+	var wg sync.WaitGroup
 	for i := 0; i < len(tt); i++ {
 
-		var pp map[string]interface{}
-		err:=json.Unmarshal(tt[i].Declare, &pp)
-		if err!=nil{
-			log.Panic(err)
-		}
+		wg.Add(1)
+		go func(message []byte){
+			var pp map[string]interface{}
+			err:=json.Unmarshal(message,&pp)
+			if err!=nil{
+				log.Panic(err)
+			}
 
 			for k, _ := range pp {
 				if k == "username" {
@@ -84,11 +86,15 @@ func UserShow(c *gin.Context) {
 				}
 			}
 
-		tpt, _ := json.Marshal(pp)
+			tpt, _ := json.Marshal(pp)
 
-		zz = append(zz, tpt)
+			zz = append(zz, tpt)
+			wg.Done()
+		}(tt[i].Declare)
+
+
 	}
-
+	wg.Wait()
 	c.JSON(http.StatusOK, zz)
 	return
 }
