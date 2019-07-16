@@ -1,28 +1,38 @@
-# Mini_Project
+# Mini Project
 
-in this project I am using Gin framework and GORM for database Query
+* It is oriented towards storing the log file and retrieving the information according to search parameters provided
 
-For initiation of the database connection which is written in the init function in inits package
+* MySQL database, GIN framework and GORM used for database Query
 
-Now to store the Log file in the database I have created the structure of the required field for searching and also one column
-nmaed Declare to store the extra information of the log file
-for storing use the route http://localhost:8080/store and pass the parameter path="path of the file to store"
+* Generalised struct is used to store the information in the database. Declare is storing the entire JSON string
 
-since I am operating with the unstructured data I used map[string]interface{} to get the objects of the JSON and store them into 
-the database
+```
+type Product struct {
+	Username        string `json:"username"`
+	UserID          int    `json:"user_id"`
+	Price           int    `json:"price"`
+	PhoneNo         string `json:"phone_no"`
+	OrderPlaced     string `json:"order_placed"`
+	Password        string `json:"password"`
+	Declare         []byte
+}
 
-There are 2 routes for showing the data to the user and the admin
+```
 
-for admin 
-          I showed the entire data fields using http://localhost:8080/admin/show
-          
-          
-for user
-          I showed entire data except password and Mobile no which is Obscured using http://localhost:8080/user/show
-          
-          
-* updated
+* for uploading the multiple files and store them into the database use the following route
 
-Now I have implemented the file based upload which will create the entries in the database
+```
+http://localhost:8080/multiupload
 
-Now also implemented the multiple file upload and create and save the entries in the database concurrently
+```
+* for showing the data to the user use following route with search parameter name="****"
+
+```
+http://localhost:8080/user/show
+```
+
+* for showing the data to the admin use the following route with search parameter name="****"
+
+```
+http://localhost:8080/admin/show
+```
