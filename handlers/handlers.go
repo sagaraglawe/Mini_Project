@@ -13,59 +13,34 @@ import (
 	"sync"
 )
 
-func Admindata(c *gin.Context){
-
-	var ten[] migrations.Product
-	inits.Db.Limit(4).Find(&ten)
-	for i:=0;i<len(ten);i++{
-		fmt.Println(ten[i])
-	}
-
-}
-
-
-func Userdata(c *gin.Context){
-	var ten[] migrations.Product
-	inits.Db.Limit(4).Select([]string{"user_id","price","order_placed"}).Find(&ten)
-	for i:=0;i<len(ten);i++{
-		fmt.Println(ten[i])
-	}
-
-}
-
-
-func Showdata(c *gin.Context){
-	fmt.Println("you are in the showdata")
-	fmt.Println(c.Query("name"))
-}
-
-
 func AdminShow(c *gin.Context){
+//getting the parameter value user with the key name in the post request
 	user:=c.Query("name");
-	tt:=[]migrations.Product{}
-	inits.Db.Where("username=?",user).Find(&tt)
-	zz:=[] json.RawMessage{}
-	for i:=0;i<len(tt);i++{
-			zz=append(zz,tt[i].Declare)
+	ShowData:=[]migrations.Product{}
+//Querying
+	inits.Db.Where("username=?",user).Find(&ShowData)
+	JsonMessage:=[] json.RawMessage{}
+	for i:=0;i<len(ShowData);i++{
+			JsonMessage=append(JsonMessage,ShowData[i].Declare)
 	}
-	c.JSON(http.StatusOK,zz)
+	c.JSON(http.StatusOK,JsonMessage)
 	return
-
 }
 
 func UserShow(c *gin.Context) {
 	user := c.Query("name");
-	tt := []migrations.Product{}
-	inits.Db.Where("username=?", user).Find(&tt)
+	ShowData := []migrations.Product{}
+//Query
+	inits.Db.Where("username=?", user).Find(&ShowData)
 
-	var zz [] json.RawMessage
-	for i := 0; i < len(tt); i++ {
+	var JsonMessage [] json.RawMessage
+	for i := 0; i < len(ShowData); i++ {
 			var pp map[string]interface{}
-			err:=json.Unmarshal(tt[i].Declare,&pp)
+			err:=json.Unmarshal(ShowData[i].Declare,&pp)
 			if err!=nil{
 				log.Panic(err)
 			}
-
+//securing the data which is not to be display to the user
 			for k, _ := range pp {
 				if k == "phone_no" {
 					pp[k] = "********"
@@ -77,85 +52,45 @@ func UserShow(c *gin.Context) {
 
 			tpt, _ := json.Marshal(pp)
 
-			zz = append(zz, tpt)
+			JsonMessage = append(JsonMessage, tpt)
 	}
-	c.JSON(http.StatusOK, zz)
+	c.JSON(http.StatusOK, JsonMessage)
 	return
 }
 
-
-
-//
-//func UserShow(c *gin.Context){
-//	user:=c.Query("name");
-//	tt:=[]migrations.Product{}
-//	inits.Db.Where("username=?",user).Find(&tt)
-//
-//	//fmt.Printf("%T",tt[0].Declare)
-//
-//	var zz [] migrations.Tproduct
-//
-//	for i:=0;i<len(tt);i++{
-//		pp:=migrations.Tproduct{}
-//		json.Unmarshal(tt[i].Declare,&pp)
-//		pp.PhoneNo=pp.PhoneNo[:2] + "******" + pp.PhoneNo[8:]
-//		pp.Password="********"
-//		zz=append(zz,pp)
-//	}
-//
-//	c.JSON(http.StatusOK,zz)
-//	return
-//}
-
-
 func StoreData(c *gin.Context){
 	path:=c.Query("path")
-
-	//fmt.Println(path)
-
 	var prod []migrations.Product
 
-	//reading the Json file into the file
+//reading the Json file into the file
 	file, _ := ioutil.ReadFile(path)
 
-	//converting the Json file into the slice of bytes
+//converting the Json file into the slice of bytes
 	err:=json.Unmarshal([]byte(file),&prod)
 
-	//converting the entire fields to set into the Declare column
-	//var temp []Tproduct
-	//err=json.Unmarshal([]byte(file),&temp)
-
-
-
-	//some modifications
+//handling unstructured data
 
 	var pp []map[string]interface{}
-
 	err=json.Unmarshal([]byte(file),&pp)
 
-	//if error happens then call panic
+//if error happens then call panic
 	if err!=nil{
 		fmt.Println(err)
 	}
 
-	//for k,v:=range pp{
-	//	fmt.Println(k,v)
-	//}
-
-	//migration to create the table in the Database
+//migration to create the table in the Database
 	inits.Db.AutoMigrate(&migrations.Product{})
 
-	//filling the database table
+//filling the database table
 	for i:=0;i<len(pp);i++{
-		//this is getting the entire field and setting that to the declare field
-		//, _ := json.Marshal(temp[i])
+//this is getting the entire field and setting that to the declare field
 
-		byte,_:=json.Marshal(pp[i])
+	byte,_:=json.Marshal(pp[i])
 
-		//setting the prod[i] declare field
-		prod[i].Declare=byte
-		//now sending the entry to the database
-		inits.Db.Create(prod[i])
+//setting the prod[i] declare field
+	prod[i].Declare=byte
+//now sending the entry to the database
+	inits.Db.Create(prod[i])
 	}
 }
 
@@ -163,7 +98,7 @@ func StoreData(c *gin.Context){
 
 //Handling the HTML file
 func UploadFile(c *gin.Context) {
-	//it is for calling the html file to be loaded
+//it is for calling the html file to be loaded
 	c.HTML(200, "index.html", nil)
 }
 
@@ -188,59 +123,46 @@ func TakeFile(c *gin.Context){
 	}
 
 	path:="JsonFile/"+file.Filename
-
-	//fmt.Println(path)
-
 	var prod []migrations.Product
 
-	//reading the Json file into the file
+//reading the Json file into the file
 	file1, _:= ioutil.ReadFile(path)
 
-	//converting the Json file into the slice of bytes
+//converting the Json file into the slice of bytes
 	err=json.Unmarshal([]byte(file1),&prod)
 
-	//converting the entire fields to set into the Declare column
-	//var temp []Tproduct
-	//err=json.Unmarshal([]byte(file),&temp)
-
-
-
-	//some modifications
-
+//Handling Unstructured data
 	var pp []map[string]interface{}
 
 	err=json.Unmarshal([]byte(file1),&pp)
 
-	//if error happens then call panic
+//if error happens then call panic
 	if err!=nil{
 		fmt.Println(err)
 	}
 
-	//for k,v:=range pp{
-	//	fmt.Println(k,v)
-	//}
-
-	//migration to create the table in the Database
+//migration to create the table in the Database
 	inits.Db.AutoMigrate(&migrations.Product{})
 
-	//filling the database table
+//filling the database table
 	for i:=0;i<len(pp);i++{
-		//this is getting the entire field and setting that to the declare field
-		//, _ := json.Marshal(temp[i])
+//this is getting the entire field and setting that to the declare field
 
-		byte,_:=json.Marshal(pp[i])
+	byte,_:=json.Marshal(pp[i])
 
-		//setting the prod[i] declare field
-		prod[i].Declare=byte
-		//now sending the entry to the database
-		inits.Db.Create(prod[i])
+//setting the prod[i] declare field
+	prod[i].Declare=byte
+//now sending the entry to the database
+	inits.Db.Create(prod[i])
 	}
 }
 
-
+//this is for getting the HTML view
 func MultiUpload(c *gin.Context){
 	c.HTML(200, "temp.html", nil)
 }
+
+
 
 func StoreMultiUpload(c *gin.Context){
 		form,_:=c.MultipartForm()
@@ -259,7 +181,6 @@ func StoreMultiUpload(c *gin.Context){
 
 		wg.Wait()
 
-
 }
 
 
@@ -267,50 +188,31 @@ func CreateDatabase(file2 *multipart.FileHeader){
 
 	path:="JsonFile/"+file2.Filename
 
-	//fmt.Println(path)
-
 	var prod []migrations.Product
 
-	//reading the Json file into the file
+//reading the Json file into the file
 	file1, _:= ioutil.ReadFile(path)
 
-	//converting the Json file into the slice of bytes
+//converting the Json file into the slice of bytes
 	err:=json.Unmarshal([]byte(file1),&prod)
-
-	//converting the entire fields to set into the Declare column
-	//var temp []Tproduct
-	//err=json.Unmarshal([]byte(file),&temp)
-
-
-
-	//some modifications
 
 	var pp []map[string]interface{}
 
 	err=json.Unmarshal([]byte(file1),&pp)
 
-	//if error happens then call panic
+//if error happens then call panic
 	if err!=nil{
 		fmt.Println(err)
 	}
 
-	//for k,v:=range pp{
-	//	fmt.Println(k,v)
-	//}
-
-	//migration to create the table in the Database
-	//inits.Db.AutoMigrate(&migrations.Product{})
-
-	//filling the database table
+//filling the database table
 	for i:=0;i<len(pp);i++{
-		//this is getting the entire field and setting that to the declare field
-		//, _ := json.Marshal(temp[i])
+//this is getting the entire field and setting that to the declare field
+	byte,_:=json.Marshal(pp[i])
 
-		byte,_:=json.Marshal(pp[i])
-
-		//setting the prod[i] declare field
-		prod[i].Declare=byte
-		//now sending the entry to the database
-		inits.Db.Create(prod[i])
+//setting the prod[i] declare field
+	prod[i].Declare=byte
+//now sending the entry to the database
+	inits.Db.Create(prod[i])
 	}
 }

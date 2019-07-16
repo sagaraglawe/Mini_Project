@@ -1,6 +1,8 @@
 package migrations
 
 
+
+//it is the schema of the table to be stored in the database
 type Product struct {
 	Username        string `json:"username"`
 	UserID          int    `json:"user_id"`
