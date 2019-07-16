@@ -16,6 +16,7 @@ func main() {
 
 	//always load the entire HTML files or say frontend files before its use
 	r.LoadHTMLFiles("index.html")
+	r.LoadHTMLFiles("temp.html")
 
 	r.GET("/admin",handlers.Admindata)
 	r.GET("/user",handlers.Userdata)
@@ -29,6 +30,8 @@ func main() {
 	r.GET("/uploadfile",handlers.UploadFile)
 	r.POST("/uploadfile",handlers.TakeFile)
 
+	r.GET("/multiupload",handlers.MultiUpload)
+	r.POST("/multiupload",handlers.StoreMultiUpload)
 
 	err:=r.Run(":8080")
 	if err!=nil{

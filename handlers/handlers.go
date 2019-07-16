@@ -8,6 +8,7 @@ import (
 	"github.com/sagaraglawe/miniProject/migrations"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"sync"
 )
@@ -183,6 +184,9 @@ func UploadFile(c *gin.Context) {
 	c.HTML(200, "index.html", nil)
 }
 
+
+
+
 func TakeFile(c *gin.Context){
 //this is for receiving the uploaded content in the name file
 //the "myFile" comes from the index.html where we used this attribute to represent the name of the file
@@ -235,6 +239,84 @@ func TakeFile(c *gin.Context){
 
 	//migration to create the table in the Database
 	inits.Db.AutoMigrate(&migrations.Product{})
+
+	//filling the database table
+	for i:=0;i<len(pp);i++{
+		//this is getting the entire field and setting that to the declare field
+		//, _ := json.Marshal(temp[i])
+
+		byte,_:=json.Marshal(pp[i])
+
+		//setting the prod[i] declare field
+		prod[i].Declare=byte
+		//now sending the entry to the database
+		inits.Db.Create(prod[i])
+	}
+}
+
+
+func MultiUpload(c *gin.Context){
+	c.HTML(200, "temp.html", nil)
+}
+
+func StoreMultiUpload(c *gin.Context){
+		form,_:=c.MultipartForm()
+		files:=form.File["multiplefiles"]
+		inits.Db.AutoMigrate(&migrations.Product{})
+		var wg sync.WaitGroup
+		for _,file:=range files{
+			err:=c.SaveUploadedFile(file,"JsonFile/"+file.Filename)
+			if err!=nil{
+				log.Fatal(err)
+			}
+			wg.Add(1)
+			go CreateDatabase(file)
+			defer wg.Done()
+		}
+
+		wg.Wait()
+
+
+}
+
+
+func CreateDatabase(file2 *multipart.FileHeader){
+
+	path:="JsonFile/"+file2.Filename
+
+	//fmt.Println(path)
+
+	var prod []migrations.Product
+
+	//reading the Json file into the file
+	file1, _:= ioutil.ReadFile(path)
+
+	//converting the Json file into the slice of bytes
+	err:=json.Unmarshal([]byte(file1),&prod)
+
+	//converting the entire fields to set into the Declare column
+	//var temp []Tproduct
+	//err=json.Unmarshal([]byte(file),&temp)
+
+
+
+	//some modifications
+
+	var pp []map[string]interface{}
+
+	err=json.Unmarshal([]byte(file1),&pp)
+
+	//if error happens then call panic
+	if err!=nil{
+		fmt.Println(err)
+	}
+
+	//for k,v:=range pp{
+	//	fmt.Println(k,v)
+	//}
+
+	//migration to create the table in the Database
+	//inits.Db.AutoMigrate(&migrations.Product{})
 
 	//filling the database table
 	for i:=0;i<len(pp);i++{
