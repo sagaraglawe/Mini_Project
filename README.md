@@ -14,8 +14,10 @@ the database
 There are 2 routes for showing the data to the user and the admin
 
 for admin 
-          I showed the entire data fields 
+          I showed the entire data fields using http://localhost:8080/admin/show
+          
+          
 for user
-          I showed entire data except password and Mobile no which is Obscured
+          I showed entire data except password and Mobile no which is Obscured using http://localhost:8080/user/show
           
           
