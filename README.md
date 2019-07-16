@@ -2,7 +2,7 @@
 
 in this project I am using Gin framework and GORM for database Query
 
-Run main.go for initiation of the database connection which is written in the init function 
+For initiation of the database connection which is written in the init function in inits package
 
 Now to store the Log file in the database I have created the structure of the required field for searching and also one column
 nmaed Declare to store the extra information of the log file
