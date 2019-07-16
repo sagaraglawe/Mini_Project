@@ -174,3 +174,78 @@ func StoreData(c *gin.Context){
 		inits.Db.Create(prod[i])
 	}
 }
+
+
+
+//Handling the HTML file
+func UploadFile(c *gin.Context) {
+	//it is for calling the html file to be loaded
+	c.HTML(200, "index.html", nil)
+}
+
+func TakeFile(c *gin.Context){
+//this is for receiving the uploaded content in the name file
+//the "myFile" comes from the index.html where we used this attribute to represent the name of the file
+	file,err:=c.FormFile("myFile")
+
+//if error happens while uploading then panic
+	if err!=nil{
+		fmt.Println(err)
+		log.Panic(err)
+	}
+//it is to store the file thus get into the destination directory required and set by us
+	err=c.SaveUploadedFile(file,"JsonFile/"+file.Filename)
+
+	if err!=nil{
+		log.Fatal(err)
+	}
+
+	path:="JsonFile/"+file.Filename
+
+	//fmt.Println(path)
+
+	var prod []migrations.Product
+
+	//reading the Json file into the file
+	file1, _:= ioutil.ReadFile(path)
+
+	//converting the Json file into the slice of bytes
+	err=json.Unmarshal([]byte(file1),&prod)
+
+	//converting the entire fields to set into the Declare column
+	//var temp []Tproduct
+	//err=json.Unmarshal([]byte(file),&temp)
+
+
+
+	//some modifications
+
+	var pp []map[string]interface{}
+
+	err=json.Unmarshal([]byte(file1),&pp)
+
+	//if error happens then call panic
+	if err!=nil{
+		fmt.Println(err)
+	}
+
+	//for k,v:=range pp{
+	//	fmt.Println(k,v)
+	//}
+
+	//migration to create the table in the Database
+	inits.Db.AutoMigrate(&migrations.Product{})
+
+	//filling the database table
+	for i:=0;i<len(pp);i++{
+		//this is getting the entire field and setting that to the declare field
+		//, _ := json.Marshal(temp[i])
+
+		byte,_:=json.Marshal(pp[i])
+
+		//setting the prod[i] declare field
+		prod[i].Declare=byte
+		//now sending the entry to the database
+		inits.Db.Create(prod[i])
+	}
+}
