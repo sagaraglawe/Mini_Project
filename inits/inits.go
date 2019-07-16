@@ -16,7 +16,7 @@ func init(){
 
 //error to handle the error while the connection is in Process
 	var err error
-	Db,err =gorm.Open("mysql", "root:@tcp(127.0.0.1:3306)/books?charset=utf8&parseTime=True")
+	Db,err =gorm.Open("mysql", "root:Sagaraglawe@26@tcp(127.0.0.1:3306)/books?charset=utf8&parseTime=True")
 	if err!=nil{
 		log.Panic(err)
 	}

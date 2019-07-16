@@ -45,17 +45,9 @@ func AdminShow(c *gin.Context){
 	tt:=[]migrations.Product{}
 	inits.Db.Where("username=?",user).Find(&tt)
 	zz:=[] json.RawMessage{}
-	var wg sync.WaitGroup
 	for i:=0;i<len(tt);i++{
-		//zz.append()
-		//zz=append(zz,tt[i].Declare)
-		wg.Add(1)
-		go func (message []byte){
-			zz=append(zz,message)
-			wg.Done()
-		}(tt[i].Declare)
+			zz=append(zz,tt[i].Declare)
 	}
-	wg.Wait()
 	c.JSON(http.StatusOK,zz)
 	return
 
@@ -67,13 +59,9 @@ func UserShow(c *gin.Context) {
 	inits.Db.Where("username=?", user).Find(&tt)
 
 	var zz [] json.RawMessage
-	var wg sync.WaitGroup
 	for i := 0; i < len(tt); i++ {
-
-		wg.Add(1)
-		go func(message []byte){
 			var pp map[string]interface{}
-			err:=json.Unmarshal(message,&pp)
+			err:=json.Unmarshal(tt[i].Declare,&pp)
 			if err!=nil{
 				log.Panic(err)
 			}
@@ -90,12 +78,7 @@ func UserShow(c *gin.Context) {
 			tpt, _ := json.Marshal(pp)
 
 			zz = append(zz, tpt)
-			wg.Done()
-		}(tt[i].Declare)
-
-
 	}
-	wg.Wait()
 	c.JSON(http.StatusOK, zz)
 	return
 }
